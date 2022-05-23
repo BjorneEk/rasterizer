@@ -23,7 +23,7 @@ if problems occure try running with verbose output this is due to a bug in the c
 
 | Key              | Action, enable/dissable |
 |:----------------:|:-----------------------:|
-|SPACE                   smooth shading      |
+|SPACE             |     smooth shading      |
 |W                 |       wireframe         |
 |MOUSE             |       translate         |
 |MOUSE + SHIFT     |        rotate           |
