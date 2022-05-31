@@ -21,7 +21,7 @@ typedef unsigned long long u64_t;
 /**
  *   represents a .obj file vertex.
  **/
-typedef union vertex
+typedef union vert
 {
   double a[4];
   struct

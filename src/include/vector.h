@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////
 #include <stdbool.h>
 #include "wobjl.h"
+#include "color.h"
 
 typedef struct vec3d
 {
@@ -15,11 +16,7 @@ typedef struct vec3d
   float z;
 } vec3d_t;
 
-typedef struct vnpair
-{
-  vec3d_t vec;
-  vec3d_t normal;
-} vnpair_t;
+
 
 
 
@@ -54,6 +51,8 @@ float dot_prod(vec3d_t v1, vec3d_t v2);
 void normalize(vec3d_t * v);
 
 vec3d_t normalize_from(float a, float b, float c);
+
+vec3d_t vec_normal(vec3d_t u, vec3d_t v, vec3d_t w);
 
 float cmp_vec(vec3d_t v1, vec3d_t v2);
 

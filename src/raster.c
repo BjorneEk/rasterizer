@@ -25,37 +25,37 @@ void draw_triangle(SDL_Renderer * rndr, const vec3d_t * a, const vec3d_t * b, co
   SDL_RenderDrawLine(rndr, (int)(c->x), (int)(c->y), (int)(a->x), (int)(a->y));
 }
 
-void raster_triangle(SDL_Renderer * rndr, const vec3d_t * a, const vec3d_t * b,
-                            const vec3d_t * c, const float la,
-                            const float lb,    const float lc, const color_t clr)
+void raster_triangle(SDL_Renderer * rndr, const vertex_t * a, const vertex_t * b,
+                                          const vertex_t * c, const float la,
+                                          const float lb,     const float lc)
 {
   i32_t min_x, min_y;
   i32_t max_x, max_y;
 
   // CCompute triangle bounding box and clip against screen bounds
-  min_x = max(min3(a->x, b->x, c->x), 0);
-  min_y = max(min3(a->y, b->y, c->y), 0);
-  max_x = min(max3(a->x, b->x, c->x), WIDTH - 1);
-  max_y = min(max3(a->y, b->y, c->y), HEIGHT - 1);
+  min_x = max(min3(a->vec.x, b->vec.x, c->vec.x), 0);
+  min_y = max(min3(a->vec.y, b->vec.y, c->vec.y), 0);
+  max_x = min(max3(a->vec.x, b->vec.x, c->vec.x), WIDTH - 1);
+  max_y = min(max3(a->vec.y, b->vec.y, c->vec.y), HEIGHT - 1);
 
   // rasterize triangle
   for (i32_t y = min_y; y <= max_y; y++) {
     for (i32_t x = min_x; x <= max_x; x++) {
       // Determine barycentric coordinates
-      float w0 = edge_function(b, c, (float)x, (float)y);
-      float w1 = edge_function(c, a, (float)x, (float)y);
-      float w2 = edge_function(a, b, (float)x, (float)y);
+      float w0 = edge_function(&b->vec, &c->vec, (float)x, (float)y);
+      float w1 = edge_function(&c->vec, &a->vec, (float)x, (float)y);
+      float w2 = edge_function(&a->vec, &b->vec, (float)x, (float)y);
 
       // If p is on or inside all edges, render pixel.
       if (w0 >= 0 && w1 >= 0 && w2 >= 0)
       {
-        w0 /= edge_function(b, c, a->x, a->y);
-        w1 /= edge_function(c, a, b->x, b->y);
-        w2 /= edge_function(a, b, c->x, c->y);
+        w0 /= edge_function(&b->vec, &c->vec, a->vec.x, a->vec.y);
+        w1 /= edge_function(&c->vec, &a->vec, b->vec.x, b->vec.y);
+        w2 /= edge_function(&a->vec, &b->vec, c->vec.x, c->vec.y);
 
-        float red   = (w0 * (la * clr.r)) + (w1 * (lb * clr.r)) + (w2 * (lc * clr.r));
-        float green = (w0 * (la * clr.g)) + (w1 * (lb * clr.g)) + (w2 * (lc * clr.g));
-        float blue  = (w0 * (la * clr.b)) + (w1 * (lb * clr.b)) + (w2 * (lc * clr.b));
+        float red   = (w0 * (la * a->color.r)) + (w1 * (lb * b->color.r)) + (w2 * (lc * c->color.r));
+        float green = (w0 * (la * a->color.g)) + (w1 * (lb * b->color.g)) + (w2 * (lc * c->color.g));
+        float blue  = (w0 * (la * a->color.b)) + (w1 * (lb * b->color.b)) + (w2 * (lc * c->color.b));
         SDL_SetRenderDrawColor(rndr, red, green, blue, 1);
         SDL_RenderDrawPoint(rndr, x, y);
       }

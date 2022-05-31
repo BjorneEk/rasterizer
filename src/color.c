@@ -5,9 +5,9 @@
 color_t from_angle(float a)
 {
   return (color_t) {
-    .r = fabsf(sin(0.3f * (a) + 0.0f)) * 255.0,
-    .g = fabsf(sin(0.3f * (a) + 2.0f)) * 255.0,
-    .b = fabsf(sin(0.3f * (a) + 4.0f)) * 255.0
+    .r = fabs(sin(0.3f * (a) + 0.0f)) * 255.0,
+    .g = fabs(sin(0.3f * (a) + 2.0f)) * 255.0,
+    .b = fabs(sin(0.3f * (a) + 4.0f)) * 255.0
   };
 }
 color_t with_brightness(color_t color, float b) {

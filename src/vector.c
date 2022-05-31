@@ -99,6 +99,14 @@ vec3d_t normalize_from(float a, float b, float c)
   return v;
 }
 
+vec3d_t vec_normal(vec3d_t u, vec3d_t v, vec3d_t w) {
+  vec3d_t v1 = vec_sub(u, v);
+  vec3d_t v2 = vec_sub(u, w);
+  vec3d_t cp = cross_prod(v1, v2);
+  normalize(&cp);
+  return cp;
+}
+
 float dot_prod(vec3d_t v1, vec3d_t v2)
 {
   return (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);

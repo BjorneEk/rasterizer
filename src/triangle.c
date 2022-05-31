@@ -17,7 +17,7 @@ float z_avg(triangle_t tri) {
       ((tri.p3.vec.z > tri.p2.vec.z) ? tri.p3.vec.z : tri.p2.vec.z);
 }
 
-bool tri_contains(triangle_t tri, vnpair_t p)
+bool tri_contains(triangle_t tri, vertex_t p)
 {
   return equals_v3d(tri.p1.vec, p.vec) || equals_v3d(tri.p2.vec, p.vec) || equals_v3d(tri.p3.vec, p.vec);
 }
@@ -36,9 +36,9 @@ triangle_t nulltri()
 {
   return (triangle_t)
   {
-    .p[0] = (vnpair_t){(vec3d_t){0.0,0.0,0.0}, (vec3d_t){0.0,0.0,0.0}},
-    .p[1] = (vnpair_t){(vec3d_t){0.0,0.0,0.0}, (vec3d_t){0.0,0.0,0.0}},
-    .p[2] = (vnpair_t){(vec3d_t){0.0,0.0,0.0}, (vec3d_t){0.0,0.0,0.0}}
+    .p[0] = (vertex_t){(vec3d_t){0.0,0.0,0.0}, (vec3d_t){0.0,0.0,0.0}, NULL_COLOR},
+    .p[1] = (vertex_t){(vec3d_t){0.0,0.0,0.0}, (vec3d_t){0.0,0.0,0.0}, NULL_COLOR},
+    .p[2] = (vertex_t){(vec3d_t){0.0,0.0,0.0}, (vec3d_t){0.0,0.0,0.0}, NULL_COLOR}
   };
 }
 
@@ -62,38 +62,33 @@ vec3d_t normal(triangle_t trig) {
   normalize(&cp);
   return cp;
 }
-vec3d_t vec_normal(vec3d_t a, vec3d_t b, vec3d_t c) {
-  vec3d_t v1 = vec_sub(a, b);
-  vec3d_t v2 = vec_sub(a, c);
-  vec3d_t cp = cross_prod(v1, v2);
-  normalize(&cp);
-  return cp;
-}
+
 
 triangle_t rotate_tri_y(triangle_t t, double ang)
 {
   return (triangle_t)
   {
-    (vnpair_t){rotate_y(t.p1.vec, ang), rotate_y(t.p1.normal, ang)},
-    (vnpair_t){rotate_y(t.p2.vec, ang), rotate_y(t.p2.normal, ang)},
-    (vnpair_t){rotate_y(t.p3.vec, ang), rotate_y(t.p3.normal, ang)}
+    (vertex_t){rotate_y(t.p1.vec, ang), rotate_y(t.p1.normal, ang), t.p1.color},
+    (vertex_t){rotate_y(t.p2.vec, ang), rotate_y(t.p2.normal, ang), t.p2.color},
+    (vertex_t){rotate_y(t.p3.vec, ang), rotate_y(t.p3.normal, ang), t.p3.color}
   };
 }
 triangle_t rotate_tri_x(triangle_t t, double ang)
 {
   return (triangle_t)
   {
-    (vnpair_t){rotate_x(t.p1.vec, ang), rotate_x(t.p1.normal, ang)},
-    (vnpair_t){rotate_x(t.p2.vec, ang), rotate_x(t.p2.normal, ang)},
-    (vnpair_t){rotate_x(t.p3.vec, ang), rotate_x(t.p3.normal, ang)}
+    (vertex_t){rotate_x(t.p1.vec, ang), rotate_x(t.p1.normal, ang), t.p1.color},
+    (vertex_t){rotate_x(t.p2.vec, ang), rotate_x(t.p2.normal, ang), t.p2.color},
+    (vertex_t){rotate_x(t.p3.vec, ang), rotate_x(t.p3.normal, ang), t.p3.color}
   };
 }
 
-triangle_t rotate_tri(triangle_t t, double x, double y)
+triangle_t rotate_tri(triangle_t t, vec3d_t angles)
 {
   triangle_t res;
-  res = rotate_tri_x(t, x);
-  res = rotate_tri_y(res, y);
+
+  res = rotate_tri_y(t, angles.y);
+  res = rotate_tri_x(res, angles.x);
   return res;
 }
 
@@ -101,9 +96,9 @@ triangle_t project_tri(triangle_t t, matrix4x4_t pm)
 {
   return (triangle_t)
   {
-    (vnpair_t){mat4x4_mult(t.p1.vec, pm), mat4x4_mult(t.p1.normal, pm)},
-    (vnpair_t){mat4x4_mult(t.p2.vec, pm), mat4x4_mult(t.p2.normal, pm)},
-    (vnpair_t){mat4x4_mult(t.p3.vec, pm), mat4x4_mult(t.p3.normal, pm)}
+    (vertex_t){mat4x4_mult(t.p1.vec, pm), t.p1.normal, t.p1.color},
+    (vertex_t){mat4x4_mult(t.p2.vec, pm), t.p2.normal, t.p2.color},
+    (vertex_t){mat4x4_mult(t.p3.vec, pm), t.p3.normal, t.p3.color}
   };
 }
 
@@ -111,9 +106,9 @@ triangle_t scale_tri(triangle_t t, double scale)
 {
   return (triangle_t)
   {
-    (vnpair_t){vec_scale(t.p1.vec, scale), vec_scale(t.p1.normal, scale)},
-    (vnpair_t){vec_scale(t.p2.vec, scale), vec_scale(t.p2.normal, scale)},
-    (vnpair_t){vec_scale(t.p3.vec, scale), vec_scale(t.p3.normal, scale)}
+    (vertex_t){vec_scale(t.p1.vec, scale), t.p1.normal, t.p1.color},
+    (vertex_t){vec_scale(t.p2.vec, scale), t.p2.normal, t.p2.color},
+    (vertex_t){vec_scale(t.p3.vec, scale), t.p3.normal, t.p3.color}
   };
 }
 
@@ -132,9 +127,9 @@ triangle_t translate_tri(triangle_t t, vec3d_t rel)
 {
   return (triangle_t)
   {
-    (vnpair_t){vec_add(t.p1.vec, rel), vec_add(t.p1.normal, rel)},
-    (vnpair_t){vec_add(t.p2.vec, rel), vec_add(t.p2.normal, rel)},
-    (vnpair_t){vec_add(t.p3.vec, rel), vec_add(t.p3.normal, rel)}
+    (vertex_t){vec_add(t.p1.vec, rel), t.p1.normal, t.p1.color},
+    (vertex_t){vec_add(t.p2.vec, rel), t.p2.normal, t.p2.color},
+    (vertex_t){vec_add(t.p3.vec, rel), t.p3.normal, t.p3.color}
   };
 }
 
@@ -147,7 +142,7 @@ triangle_t * get_triangles(obj_t * obj)
   for (size_t i = 0; i < obj->nfaces; i++) {
     triangle_t new_tri;
     for (size_t j = 0; j < 3; j++) {
-      vnpair_t new;
+      vertex_t new;
       u32_t    idx;
 
        /* index of actual vertex in vertex array */
@@ -173,6 +168,8 @@ triangle_t * get_triangles(obj_t * obj)
       //	}
       }
       normalize(&new.normal);
+      //new.color = from_angle((float)((float)((float)obj->nfaces*3.0)/(float)((float)i+(float)j)));
+      new.color = COLOR_WHITE;
       new_tri.p[j] = new;
     }
     res[i] = new_tri;

@@ -68,7 +68,7 @@ vec3d_t mat4x4_mult(vec3d_t v, matrix4x4_t m)
   return res;
 }
 
-vec3d_t mat3x3_mult(vec3d_t v, matrix3x3_t mat)
+vec3d_t mat3x3_X_vec3d(vec3d_t v, matrix3x3_t mat)
 {
   return (vec3d_t)
   {
@@ -77,15 +77,33 @@ vec3d_t mat3x3_mult(vec3d_t v, matrix3x3_t mat)
     (mat.r3.x * v.x) + (mat.r3.y * v.y) + (mat.r3.z * v.z)
   };
 }
+matrix3x3_t mat3x3_mult(matrix3x3_t m1, matrix3x3_t m2)
+{
+  matrix3x3_t res;
+  int i, j, k;
+  for(i=0; i<3; ++i) for(j=0; j<3; ++j) res.matrix[i][j] = 0;
+
+  // Multiplying matrix firstMatrix and secondMatrix and storing in array mult.
+  for(i=0; i<3; ++i) for(j=0; j<3; ++j) for(k=0; k<3; ++k)
+    res.matrix[i][j] += m1.matrix[i][k] * m2.matrix[k][j];
+
+  return res;
+}
+
 vec3d_t rotate_x(vec3d_t v, float angle)
 {
-  return mat3x3_mult(v, rot_x_matrix(angle));
+  return mat3x3_X_vec3d(v, rot_x_matrix(angle));
 }
 vec3d_t rotate_y(vec3d_t v, float angle)
 {
-  return mat3x3_mult(v, rot_y_matrix(angle));
+  return mat3x3_X_vec3d(v, rot_y_matrix(angle));
 }
 vec3d_t rotate_z(vec3d_t v, float angle)
 {
-  return mat3x3_mult(v, rot_z_matrix(angle));
+  return mat3x3_X_vec3d(v, rot_z_matrix(angle));
+}
+
+vec3d_t rotate_vec(vec3d_t u, vec3d_t v) {
+  vec3d_t res = mat3x3_X_vec3d(mat3x3_X_vec3d(mat3x3_X_vec3d(u, rot_x_matrix(v.x)), rot_y_matrix(v.y)), rot_z_matrix(v.z));
+  return res;
 }

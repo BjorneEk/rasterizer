@@ -3,6 +3,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "wobjl.h"
+#include "vertex.h"
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -16,17 +17,17 @@ typedef struct triangle
   {
     struct
     {
-      vnpair_t p1;
-      vnpair_t p2;
-      vnpair_t p3;
+      vertex_t p1;
+      vertex_t p2;
+      vertex_t p3;
     };
-    vnpair_t p[3];
+    vertex_t p[3];
   };
 } triangle_t;
 
 float z_avg(triangle_t tri);
 
-bool tri_contains(triangle_t tri, vnpair_t p);
+bool tri_contains(triangle_t tri, vertex_t p);
 bool equals_tri(triangle_t t1, triangle_t t2);
 
 void print_trig(triangle_t tri);
@@ -35,7 +36,7 @@ vec3d_t normal(triangle_t trig);
 
 triangle_t * get_triangles(obj_t * obj);
 
-triangle_t rotate_tri(triangle_t t, double x, double y);
+triangle_t rotate_tri(triangle_t t, vec3d_t angles);
 
 triangle_t scale_tri(triangle_t t, double scale);
 
